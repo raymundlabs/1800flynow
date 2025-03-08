@@ -9,28 +9,16 @@ on:
 jobs:
   build:
     name: Build App Bundle
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Remove Flutter Cache
-        run: rm -rf $HOME/.flutter
-
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: flutter-actions/setup-flutter@v2
         with:
-          flutter-version: "3.6.1"
-          cache: true
-
-      - name: Cache Flutter Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
+          flutter-version: "stable"
 
       - name: Verify Flutter Version
         run: flutter --version
