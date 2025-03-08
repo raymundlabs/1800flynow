@@ -9,31 +9,27 @@ on:
 jobs:
   build:
     name: Build App Bundle
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Remove Flutter Cache
-        run: rm -rf $HOME/.flutter
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: "3.6.1"  # Ensure correct Dart version
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.16.4"
+          flutter-version: "3.16.4"  # Set a specific Flutter version
           cache: true
 
-      - name: Cache Flutter Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.pub-cache
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pub-
-
-      - name: Verify Flutter Version
-        run: flutter --version
+      - name: Verify Flutter & Dart Versions
+        run: |
+          flutter --version
+          dart --version
 
       - name: Install Dependencies
         run: flutter pub get
@@ -48,7 +44,7 @@ jobs:
         run: flutter build appbundle --release
 
       - name: Upload App Bundle as Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: app-release-aab
           path: build/app/outputs/bundle/release/app-release.aab
