@@ -1,0 +1,39 @@
+name: Generate Keystore for 1800FlyNow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenJDK
+        run: sudo apt update && sudo apt install -y openjdk-17-jdk
+
+      - name: Generate Keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore upload-keystore.jks \
+            -storetype JKS \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -alias 1800flynow \
+            -dname "CN=1800FlyNow, OU=IT, O=1800FlyNow, L=Manila, S=NCR, C=PH" \
+            -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+            -keypass ${{ secrets.KEY_PASSWORD }}
+
+      - name: Upload Keystore
+        uses: actions/upload-artifact@v3
+        with:
+          name: upload-keystore
+          path: upload-keystore.jks
+
+      - name: Clean Up Keystore
+        run: rm -f upload-keystore.jks
