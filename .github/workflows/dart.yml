@@ -1,4 +1,4 @@
-name: Generate Keystore for 1800FlyNow
+name: Flutter Build AAB
 
 on:
   push:
@@ -8,33 +8,33 @@ on:
 
 jobs:
   build:
+    name: Build App Bundle
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Install OpenJDK
-        run: sudo apt update && sudo apt install -y openjdk-17-jdk
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "stable"
+          cache: true
 
-      - name: Generate Keystore
-        run: |
-          keytool -genkeypair -v \
-            -keystore upload-keystore.jks \
-            -storetype JKS \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -alias 1800flynow \
-            -dname "CN=1800FlyNow, OU=IT, O=1800FlyNow, L=Manila, S=NCR, C=PH" \
-            -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
-            -keypass ${{ secrets.KEY_PASSWORD }}
+      - name: Install Dependencies
+        run: flutter pub get
 
-      - name: Upload Keystore
+      - name: Run Static Analysis
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      - name: Build Release AAB
+        run: flutter build appbundle --release
+
+      - name: Upload App Bundle as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: upload-keystore
-          path: upload-keystore.jks
-          retention-days: 5  # Store artifact for 5 days
-
-      - name: Clean Up Keystore
-        run: rm -f upload-keystore.jks
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
