@@ -30,10 +30,11 @@ jobs:
             -keypass ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload Keystore
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: upload-keystore
           path: upload-keystore.jks
+          retention-days: 5  # Store artifact for 5 days
 
       - name: Clean Up Keystore
         run: rm -f upload-keystore.jks
